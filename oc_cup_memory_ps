@@ -1,0 +1,11 @@
+function Get-Sample($pod) {
+    $p = -split (oc exec $pod -- sh -c "TZ=Asia/Tokyo date +%H:%M:%S; grep ^usage_usec /sys/fs/cgroup/cpu.stat; cat /sys/fs/cgroup/memory.current")
+    $p[0], $p[2], $p[3] -join ','
+}
+
+"time,usage_usec,memory_bytes" | Set-Content -Encoding utf8 .\cpu_memory.csv
+while ($true) {
+    $line = Get-Sample deploy/hello
+    $line
+    Add-Content -Encoding utf8 .\cpu_memory.csv $line
+}
